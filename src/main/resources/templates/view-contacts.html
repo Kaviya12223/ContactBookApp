@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Contacts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .table-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 30px 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            width: 800px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #00e6ff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .search-sort-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            width: 60%;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+        }
+
+        .sort-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 1rem;
+            background: rgba(0, 198, 255, 0.3);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        .styled-table th, .styled-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .styled-table th {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .styled-table tr {
+            transition: all 0.3s ease;
+        }
+
+        .styled-table tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.01);
+        }
+
+        .btn-delete {
+            color: #ff4e4e;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-delete:hover {
+            color: #ff9999;
+            text-shadow: 0 0 5px #ff4e4e;
+        }
+
+        .link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00c6ff;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .link:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<div class="table-box">
+    <h1 class="title"><i class="fas fa-address-book"></i> All Contacts</h1>
+
+    <!-- Search and Sort -->
+    <div class="search-sort-container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search contacts by name...">
+        </div>
+        <div>
+            <select id="sortSelect" class="sort-select">
+                <option value="name">Sort by Name</option>
+                <option value="phone">Sort by Phone</option>
+                <option value="email">Sort by Email</option>
+            </select>
+        </div>
+    </div>
+
+    <table class="styled-table" id="contactsTable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="contact : ${contacts}">
+            <td th:text="${contact.name}"></td>
+            <td th:text="${contact.phone}"></td>
+            <td th:text="${contact.email}"></td>
+            <td>
+                <a th:href="@{'/contacts/delete/' + ${contact.name}}"
+                   class="btn-delete"
+                   onclick="return confirmDelete([[${contact.name}]])"><i class="fas fa-trash"></i> Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="/" class="link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</div>
+
+<script>
+    // SEARCH FILTER
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('#contactsTable tbody tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const query = searchInput.value.toLowerCase();
+        tableRows.forEach(row => {
+            const nameCell = row.querySelector('td:first-child');
+            row.style.display = nameCell.textContent.toLowerCase().includes(query) ? '' : 'none';
+        });
+    });
+
+    // SORTING
+    document.getElementById('sortSelect').addEventListener('change', function () {
+        const sortBy = this.value;
+        const tableBody = document.querySelector('#contactsTable tbody');
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+            const valA = a.querySelector(`td:nth-child(${getColumnIndex(sortBy)})`).innerText.toLowerCase();
+            const valB = b.querySelector(`td:nth-child(${getColumnIndex(sortBy)})`).innerText.toLowerCase();
+            return valA.localeCompare(valB);
+        });
+
+        rows.forEach(row => tableBody.appendChild(row));
+    });
+
+    function getColumnIndex(sortBy) {
+        if (sortBy === 'name') return 1;
+        if (sortBy === 'phone') return 2;
+        if (sortBy === 'email') return 3;
+    }
+
+    function confirmDelete(name) {
+        return confirm(`Are you sure you want to delete the contact: ${name}?`);
+    }
+
+    // PARTICLE ANIMATION
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 1.5 - 0.75;
+            this.speedY = Math.random() * 1.5 - 0.75;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    function initParticles() {
+        particlesArray = [];
+        for (let i = 0; i < 80; i++) particlesArray.push(new Particle());
+    }
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particlesArray.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initParticles();
+    });
+    initParticles();
+    animateParticles();
+</script>
+</body>
+</html>

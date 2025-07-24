@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Contact</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #2c5364, #203a43, #0f2027);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .auth-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            padding: 40px 35px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 400px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 0.9rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            transition: 0.3s ease;
+        }
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 8px #00c6ff;
+            outline: none;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .auth-btn i {
+            margin-right: 8px;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.5);
+        }
+        .link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #00c6ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .link:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .success-msg {
+            color: #4eff88;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+
+<div class="auth-box">
+    <div class="logo"><i class="fas fa-user-plus"></i> Add Contact</div>
+    <p class="subtitle">Fill the details to add a new contact.</p>
+
+    <div th:if="${successMessage}" class="success-msg" th:text="${successMessage}"></div>
+
+    <form action="/contacts/add" method="post">
+        <div class="input-group">
+            <label><i class="fas fa-user"></i> Name</label>
+            <input type="text" name="name" placeholder="Enter name" required>
+        </div>
+        <div class="input-group">
+            <label><i class="fas fa-phone"></i> Phone</label>
+            <input type="text" name="phone" placeholder="Enter phone number" required>
+        </div>
+        <div class="input-group">
+            <label><i class="fas fa-envelope"></i> Email</label>
+            <input type="email" name="email" placeholder="Enter email address" required>
+        </div>
+        <button type="submit" class="auth-btn"><i class="fas fa-plus"></i> Add Contact</button>
+    </form>
+
+    <a href="/" class="link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</div>
+
+<script src="/js/particles.js"></script>
+</body>
+</html>
